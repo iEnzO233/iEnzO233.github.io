@@ -11,6 +11,13 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.4/ScrollTrigger.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            --glass-highlight: rgba(255, 255, 255, 0.1);
+        }
+        
         .gradient-text {
             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
             -webkit-background-clip: text;
@@ -18,6 +25,22 @@
             color: transparent;
             animation: gradientShift 8s ease infinite;
             background-size: 300% 300%;
+        }
+        
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--glass-shadow);
+            border-radius: 24px;
+            transition: all 0.3s ease;
+        }
+        
+        .glass-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(59, 130, 246, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         @keyframes gradientShift {
@@ -86,11 +109,43 @@
             60% {transform: translateY(-10px);}
         }
         
+        @keyframes float {
+            0% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+            100% { transform: translateY(0px) rotate(0deg); }
+        }
+        
+        .animate-float {
+            animation: float 8s ease-in-out infinite;
+        }
+        
+        .animation-delay-2000 {
+            animation-delay: 2s;
+        }
+        
+        .animation-delay-3000 {
+            animation-delay: 3s;
+        }
+        
+        .animation-delay-4000 {
+            animation-delay: 4s;
+        }
+        
         .parallax-bg {
             background-attachment: fixed;
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;
+        }
+        
+        .draggable {
+            cursor: grab;
+            transition: transform 0.1s ease;
+        }
+        
+        .draggable:active {
+            cursor: grabbing;
+            transform: scale(1.1);
         }
     </style>
 </head>
@@ -100,7 +155,7 @@
         <div id="canvas-container"></div>
         
         <!-- Navigation -->
-        <nav class="fixed w-full z-50 bg-gray-900 bg-opacity-80 backdrop-filter backdrop-blur-lg">
+        <nav class="fixed w-full z-50 glass-card mx-4 mt-4 rounded-full max-w-7xl left-1/2 transform -translate-x-1/2">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-16">
                     <div class="flex items-center">
@@ -235,12 +290,20 @@
                     </div>
                 </div>
                 
-                <div class="relative h-96 w-full mt-16 rounded-2xl overflow-hidden border border-gray-700">
-                    <div id="scroll-animation" class="absolute inset-0"></div>
+                <div class="relative h-96 w-full mt-16">
+                    <div class="absolute -top-10 -left-10 w-20 h-20 rounded-full bg-pink-500/20 blur-xl animate-float"></div>
+                    <div class="absolute top-1/4 -right-10 w-24 h-24 rounded-full bg-blue-500/20 blur-xl animate-float animation-delay-2000"></div>
+                    <div class="absolute bottom-10 left-1/4 w-16 h-16 rounded-full bg-purple-500/20 blur-xl animate-float animation-delay-4000"></div>
+                    <div class="absolute bottom-1/3 right-1/4 w-32 h-32 rounded-full bg-indigo-500/20 blur-xl animate-float animation-delay-3000"></div>
+                    
                     <div class="absolute inset-0 flex items-center justify-center">
-                        <h3 class="text-3xl font-bold text-white bg-gray-900 bg-opacity-70 px-6 py-3 rounded-full">
-                            Scroll to see magic happen!
-                        </h3>
+                        <div class="glass-card p-8 max-w-md text-center cursor-pointer hover:scale-105 transition-transform">
+                            <h3 class="text-3xl font-bold mb-4 gradient-text">Play with Me!</h3>
+                            <p class="text-gray-300 mb-6">Click and drag these floating elements around the screen</p>
+                            <button class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full font-medium hover:opacity-90 transition">
+                                Let's Play
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -694,8 +757,46 @@
                 
                 onMounted(() => {
                     initThreeJS();
-                    initScrollAnimation();
                     initScrollAnimations();
+                    
+                    // Make floating elements draggable
+                    document.querySelectorAll('.animate-float').forEach(el => {
+                        el.classList.add('draggable');
+                        let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
+                        
+                        el.addEventListener('mousedown', (e) => {
+                            e.preventDefault();
+                            posX = e.clientX - el.getBoundingClientRect().left;
+                            posY = e.clientY - el.getBoundingClientRect().top;
+                            
+                            document.addEventListener('mousemove', moveElement);
+                            document.addEventListener('mouseup', () => {
+                                document.removeEventListener('mousemove', moveElement);
+                            });
+                        });
+                        
+                        function moveElement(e) {
+                            mouseX = e.clientX - posX;
+                            mouseY = e.clientY - posY;
+                            
+                            el.style.left = mouseX + 'px';
+                            el.style.top = mouseY + 'px';
+                            el.style.position = 'absolute';
+                            el.style.animation = 'none';
+                        }
+                    });
+                    
+                    // Interactive background particles
+                    const particles = document.querySelectorAll('#canvas-container canvas');
+                    if (particles.length) {
+                        particles[0].style.cursor = 'grab';
+                        particles[0].addEventListener('mousedown', () => {
+                            particles[0].style.cursor = 'grabbing';
+                        });
+                        particles[0].addEventListener('mouseup', () => {
+                            particles[0].style.cursor = 'grab';
+                        });
+                    }
                 });
                 
                 return {
