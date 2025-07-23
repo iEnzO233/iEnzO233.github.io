@@ -17,7 +17,7 @@
       * {
         scroll-behavior: smooth;
       }
-      
+
       body {
         font-family: "Inter", sans-serif;
         background-color: #0a0a0a;
@@ -261,11 +261,7 @@
     <!-- Custom Cursor -->
     <div
       id="custom-cursor"
-      class="fixed w-8 h-8 rounded-full bg-white bg-opacity-10 border border-white border-opacity-30 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-difference z-50 transition-all duration-300 ease-out"
-    ></div>
-    <div
-      id="cursor-text"
-      class="fixed text-white text-xs font-medium opacity-0 pointer-events-none z-50 transition-opacity duration-300"
+      class="fixed w-8 h-8 rounded-full bg-white bg-opacity-10 z-[1000] border border-white border-opacity-30 pointer-events-none transform -translate-x-1/2 -translate-y-1/2 mix-blend-difference z-50 transition-all duration-300 ease-out"
     ></div>
 
     <!-- Three.js Container -->
@@ -341,7 +337,9 @@
         <div class="text-center">
           <h1 class="text-5xl md:text-7xl font-bold mb-6">
             <span class="gradient-text">Hello, I'm</span>
-            <span class="block text-white mt-4">Iman Mohammadi</span>
+            <span class="block text-white mt-4 should-expand"
+              >Iman Mohammadi</span
+            >
           </h1>
           <h2 class="text-2xl md:text-3xl text-gray-300 mb-8">
             <span id="typewriter" class="inline-block"></span>
@@ -1220,7 +1218,7 @@
 
       // Particles
       const particlesGeometry = new THREE.BufferGeometry();
-      const particlesCount = 5000;
+      const particlesCount = 500;
 
       const posArray = new Float32Array(particlesCount * 3);
 
@@ -1259,7 +1257,7 @@
       scene.add(torusKnot);
 
       // Camera Position
-      camera.position.z = 3;
+      camera.position.z = 5;
 
       // Optimized Animation
       let lastTime = 0;
@@ -1451,9 +1449,7 @@
       });
 
       // General hover effects
-      const hoverElements = document.querySelectorAll(
-        "a, button, .card-hover-effect, .nav-link, .project-card"
-      );
+      const hoverElements = document.querySelectorAll(".should-expand");
 
       hoverElements.forEach((el) => {
         el.addEventListener("mouseenter", () => {
